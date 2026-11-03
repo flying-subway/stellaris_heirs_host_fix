@@ -1,0 +1,57 @@
+namespace = heirs_host_fix
+
+# Starts the daily watchdog on the Heirs of the Khan Host unless it is already running.
+# Fired on single-player save load and every month (as a fallback restart). No scope.
+event = {
+	id = heirs_host_fix.1
+	hide_window = yes
+	is_triggered_only = yes
+
+	immediate = {
+		every_country = {
+			limit = {
+				has_country_flag = heirs_of_khan_host
+				exists = overlord
+				NOT = { has_country_flag = heirs_host_fix_watchdog }
+			}
+			log = "heirs_host_fix: watchdog started for [This.GetName]"
+			country_event = { id = heirs_host_fix.2 }
+		}
+	}
+}
+
+# Daily watchdog. This = the Host.
+# If the Host and its overlord are hostile, set them back to neutral (as make_heirs_khan does
+# for everyone else the Khan isn't fighting), then check again tomorrow.
+country_event = {
+	id = heirs_host_fix.2
+	hide_window = yes
+	is_triggered_only = yes
+
+	trigger = {
+		has_country_flag = heirs_of_khan_host
+		exists = overlord
+	}
+
+	immediate = {
+		set_timed_country_flag = { flag = heirs_host_fix_watchdog days = 3 }
+		if = {
+			limit = {
+				OR = {
+					is_hostile = root.overlord
+					overlord = { is_hostile = prev }
+				}
+			}
+			log = "heirs_host_fix: [This.GetName] was hostile with its overlord, reset to neutral"
+			overlord = {
+				set_faction_hostility = {
+					target = prev
+					set_hostile = no
+					set_neutral = yes
+					set_friendly = no
+				}
+			}
+		}
+		country_event = { id = heirs_host_fix.2 days = 1 }
+	}
+}

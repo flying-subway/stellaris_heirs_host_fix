@@ -1,0 +1,13 @@
+# Merged with the vanilla on_actions of the same name.
+
+on_single_player_save_game_load = {
+	events = {
+		heirs_host_fix.1
+	}
+}
+
+on_monthly_pulse = {
+	events = {
+		heirs_host_fix.1
+	}
+}
